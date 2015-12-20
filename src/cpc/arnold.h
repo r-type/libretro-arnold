@@ -33,4 +33,5 @@ BOOL	CPCEmulation_CheckEndianness(void);
 unsigned long CPCEmulation_GetPercentRelativeSpeed(void);
 void	CPC_SetAudioActive(BOOL State);
 BOOL	CPC_IsAudioActive(void);
+void  	CPC_SetWarpFactor(int);
 #endif

@@ -272,11 +272,29 @@ void	CPCEmulation_InitialiseDefaultSetup(void)
 /*   CPC_SetMonitorBrightness(MONITOR_BRIGHTNESS_MAX); */
 }
 
+
+/* To introduce Warp speed, we let each Z80 instruction last for fewer Nops:
+   With WarpFactor 1, an emulated Nop lasts 1 original Nop (CPC runs with original speed).
+   With WarpFactor 2, an emulated Nop lasts only 0.5 original Nops (CPC runs 2x as fast).
+   With WarpFactor 3, an emulated Nop lasts only 0.33 original Nops (CPC runs 3x as fast)
+   etc.. */
+static int NopCountAcc = 0; /* The accumulated Nop-count */
+static int WarpFactor = 1;  /* The speedup factor */
+
 void	CPC_ResetTiming(void)
 {
 	NopCountToDate = NOPS_PER_MONITOR_SCREEN;
+	NopCountAcc = 0;
 }
 
+#include <stdio.h> 
+
+void CPC_SetWarpFactor(int NewWarpFactor)
+{ 
+printf("warp:%d -> %d \n",WarpFactor,NewWarpFactor); 
+	WarpFactor=NewWarpFactor;
+
+}
 
 extern unsigned char *pAudioBuffer;
 extern unsigned int AudioBufferSize;
@@ -349,6 +367,13 @@ void	CPCEmulation_Run(void)
 #else
 		NopCount = Debugger_Execute(); 
 #endif
+		/* Accumulate the Nop counts */
+		NopCountAcc += NopCount;
+		/* See if we accumulated enough */
+		NopCount = 0;
+		while (NopCountAcc>=WarpFactor)
+		{ NopCount++;
+			NopCountAcc-=WarpFactor; }
 		/* update CPC nop count - used for other hardware */
 		CPC_UpdateNopCount(NopCount);
 

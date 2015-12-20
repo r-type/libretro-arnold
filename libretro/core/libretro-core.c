@@ -90,6 +90,10 @@ void retro_set_environment(retro_environment_t cb)
          "arnold_Model",
          "Model: (restart needed); 6128|464|664|6128s|6128+|kcc",
       },
+      {
+         "arnold_warp",
+         "Wrap Factor:; 1|2|3|4|5",
+      },
 /*
       {
          "cap32_Ram",
@@ -188,6 +192,20 @@ static void update_variables(void)
 	  else if (strcmp(var.value, "464+") == 0)arnold_model=4;
 	  else if (strcmp(var.value, "6128+") == 0)arnold_model=5;
 	  else if (strcmp(var.value, "kcc") == 0)arnold_model=6;
+
+   }
+
+   var.key = "arnold_warp";
+   var.value = NULL;
+
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+   {
+      char str[100];
+	  int val;
+      snprintf(str, sizeof(str), var.value);
+      val = strtoul(str, NULL, 0);
+      
+	  CPC_SetWarpFactor(val);
 
    }
 
