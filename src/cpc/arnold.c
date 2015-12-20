@@ -205,6 +205,11 @@ BOOL	CPC_IsAudioActive(void)
 
 void	CPC_SetAudioActive(BOOL State)
 {
+//FIXME RETROHACK: FORCE AudioActive TRUE and format 2/8/44100
+#ifdef __LIBRETRO__
+	AudioEvent_SetFormat(44100, 8, 2);
+	AudioActiveFlag = TRUE;
+#else
 	if ((AudioActiveFlag==FALSE) && (State==TRUE))
 	{
 		/* setup for audio playback */
@@ -240,6 +245,7 @@ void	CPC_SetAudioActive(BOOL State)
 
 		/* stop audio playback */
 	}
+#endif
 }
 
 /* this is called after every Z80 opcode executed */
