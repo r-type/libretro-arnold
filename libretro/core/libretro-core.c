@@ -88,7 +88,7 @@ void retro_set_environment(retro_environment_t cb)
       },
       {
          "arnold_Model",
-         "Model:; 6128|464|664|6128s|6128+|kcc",
+         "Model: (restart needed); 6128|464|664|6128s|6128+|kcc",
       },
 /*
       {

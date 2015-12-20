@@ -49,9 +49,9 @@ int pre_main(const char *argv)
 	  if (strlen(RPATH) >= strlen("crt")){
 
 		if(!strcasecmp(&RPATH[strlen(RPATH)-strlen("crt")], "crt"))
-			Add_Option("-cartcrt");
+			Add_Option("-cart");
 		else if (!strcasecmp(&RPATH[strlen(RPATH)-strlen("cpr")], "cpr"))
-			Add_Option("-cartcrt");
+			Add_Option("-cart");
 		else if (!strcasecmp(&RPATH[strlen(RPATH)-strlen("cdt")], "cdt"))
 			Add_Option("-tape");
 		else if (!strcasecmp(&RPATH[strlen(RPATH)-strlen("wav")], "wav"))
