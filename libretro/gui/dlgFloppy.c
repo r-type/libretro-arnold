@@ -59,7 +59,7 @@ char szDiskImageDirectory[FILENAME_MAX]={'\0'};
 #define FLOPPYDLG_DISK3       17
 #define FLOPPYDLG_IMGDIR      19
 #define FLOPPYDLG_BROWSEIMG   20
-#define FLOPPYDLG_ATTACH2FLIPLIST   22
+#define FLOPPYDLG_AUTORUN     22
 #define FLOPPYDLG_EXIT        23
 
 
@@ -92,7 +92,7 @@ static SGOBJ floppydlg[] =
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 54,14, 8,1, "Browse" },
 
 	{ SGTEXT, 0, 0, 3,16, 58,1, NULL },	
-	{ SGCHECKBOX, 0, 0, 3,17, 25,1, "Attach to Fliplist" },
+	{ SGCHECKBOX, 0, 0, 3,17, 25,1, "Autorun disk in drive A ?" },
 	{ SGBUTTON, SG_EXIT/*SG_DEFAULT*/, 0, 22,18, 24,1, "Back to main menu" },
 	{ -1, 0, 0, 0,0, 0,0, NULL }
 };
@@ -302,7 +302,7 @@ void DlgFloppy_Main(void)
 	/* Set up dialog to actual values: */
  const char *name;
 
- floppydlg[FLOPPYDLG_ATTACH2FLIPLIST].state &= ~SG_SELECTED;
+ floppydlg[FLOPPYDLG_AUTORUN].state &= ~SG_SELECTED;
 
  name = DISKA_NAME; /* Filename */
  if (!name)dlgname[0][0] = '\0';
@@ -352,16 +352,19 @@ void DlgFloppy_Main(void)
 				}	
 				else {
 
-					char AutoType_String[256];
-					char *pBuffer = malloc(512*5);
-					int nAutoRunResult = AMSDOS_GenerateAutorunCommand(pBuffer,AutoType_String);
+					if(floppydlg[FLOPPYDLG_AUTORUN].state & SG_SELECTED){
+	
+						char AutoType_String[256];	
+						char *pBuffer = malloc(512*5);
+						int nAutoRunResult = AMSDOS_GenerateAutorunCommand(pBuffer,AutoType_String);
 
-					if(nAutoRunResult==0){
-						printf("auto(%s)\n",AutoType_String);
-						AutoType_SetString(AutoType_String, TRUE, TRUE);
+						if(nAutoRunResult==0){
+							printf("auto(%s)\n",AutoType_String);
+							AutoType_SetString(AutoType_String, TRUE, TRUE);
+						}
+						else printf("error auto(%d)\n",nAutoRunResult);
+						free(pBuffer);
 					}
-					else printf("error auto(%d)\n",nAutoRunResult);
-					free(pBuffer);
 
 					sprintf(DISKA_NAME,"%s",szDiskFileName[0]);
 				}
