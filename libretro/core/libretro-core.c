@@ -568,15 +568,6 @@ void retro_run_gui(void)
 }
 #endif
 
-/*
-void retro_blit(){
-  	// Update display
-	#define DEC (16+16*TEX_WIDTH*PITCH)
-	int i;
-	for(i=0;i<TEX_HEIGHT;i++)
-		memcpy((unsigned char *)Retro_Screen+i*TEX_WIDTH*PITCH+DEC,(unsigned char *)bmp+i*TEX_WIDTH*PITCH,TEX_WIDTH*PITCH);
-}
-*/
 void retro_run(void)
 {
    int x;
@@ -588,15 +579,8 @@ void retro_run(void)
 
    if(pauseg==0)
    {
-/*
-      retro_loop();
-	  retro_blit();
-*/
-//	  Retro_PollEvent();
-	if(SHOWKEY )retro_virtualkb();
+		if(SHOWKEY )retro_virtualkb();
    }
-//   else enter_gui();
-
 
    video_cb(Retro_Screen,retrow,retroh,retrow<<PIXEL_BYTES);
 

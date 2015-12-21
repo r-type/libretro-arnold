@@ -50,17 +50,18 @@ void Dialog_OptionDlg(void)
 	optiondlg[DLGOPTION_Mouse].state&= ~SG_SELECTED;
 	optiondlg[DLGOPTION_STATUS].state&= ~SG_SELECTED;
 	optiondlg[DLGOPTION_MousePort].state&= ~SG_SELECTED;
-/*
-	resources_get_int( "Mouse",&c64mouse_enable);
+
+	//resources_get_int( "Mouse",&c64mouse_enable);
+	c64mouse_enable=0;
 
 	if (c64mouse_enable) { // Mouse on
 		optiondlg[DLGOPTION_Mouse].state |= SG_SELECTED;
 	}
 
-	resources_get_int( "Mouseport",&mouseport);
+	//resources_get_int( "Mouseport",&mouseport);
+	mouseport=0;
 	if(mouseport==2)optiondlg[DLGOPTION_MousePort].state |= SG_SELECTED;
- */
-
+ 
 /*
 	if (ThePrefs.SIDType==SIDTYPE_NONE) { 
 		sounddlg[DLGSOUND_none].state |= SG_SELECTED;
@@ -98,8 +99,7 @@ void Dialog_OptionDlg(void)
 		}
 
 	}
-*/
-/*
+
 	if(optiondlg[DLGOPTION_MousePort].state & SG_SELECTED){
 
 		if(mouseport==1){

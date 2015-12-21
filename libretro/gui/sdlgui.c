@@ -632,7 +632,7 @@ static int SDLGui_SearchFlaggedButton(const SGOBJ *dlg, int flag)
 extern int touch;
 extern int gmx,gmy;
 int okold=0,boutc=0;
-
+extern int mouse_wu,mouse_wd;
 /*-----------------------------------------------------------------------*/
 /**SDLGui_DoDialog
  * Show and process a dialog. Returns the button number that has been
@@ -669,6 +669,7 @@ int SDLGui_DoDialog(SGOBJ *dlg, int/*SDL_Event */*pEventOut)
 
 	Retro_PollEvent();
 
+if(mouse_wu==1 || mouse_wd==1)printf("SDLGui_DoDialog %d %d \n",mouse_wu,mouse_wd);
         if(touch!=-1){b=1;boutc=1;}
 	else {b=0;boutc=0;}
 
@@ -824,7 +825,7 @@ int SDLGui_DoDialog(SGOBJ *dlg, int/*SDL_Event */*pEventOut)
 		}
 
 		if(retbutton ==0)retbutton = 1;//SG_TOUCHEXIT  ;
-
+		//Retro_PollEvent();
 	}
 
 

@@ -15,6 +15,7 @@ char RETRO_DIR[512];
 char DISKA_NAME[512]="\0";
 char DISKB_NAME[512]="\0";
 char TAPE_NAME[512]="\0";
+char CART_NAME[512]="\0";
 
 //TIME
 #ifdef __CELLOS_LV2__

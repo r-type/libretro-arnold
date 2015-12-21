@@ -36,6 +36,7 @@
 
 #include "sound.h"
 
+extern int pauseg;
 
 int sound_plugin = SOUND_PLUGIN_NONE;
 
@@ -195,6 +196,8 @@ void	Host_SetDirectory(char *Directory)
 
 void	Host_Throttle(void)
 {	
+
+	if(pauseg==1)pause_select();
 
 	if (AutoType_Active())
 		{

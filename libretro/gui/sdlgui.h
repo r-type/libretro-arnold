@@ -14,24 +14,11 @@
 #ifndef HATARI_SDLGUI_H
 #define HATARI_SDLGUI_H
 
-/*
-#include "autostart.h"
-#include "vice.h"
-#include "lib.h"
-#include "machine.h"
-#include "ui.h"
-#include "attach.h"
-#include "util.h"
-#include "sid.h"
-#include "log.h"
-#include "resources.h"
-#include "tape.h"
-#include "cartridge.h"
-#include "imagecontents.h"
-#include "tapecontents.h"
-#include "diskcontents.h"
-#include "videoarch.h"
-*/
+extern char DISKA_NAME[512];
+extern char DISKB_NAME[512];
+extern char TAPE_NAME[512];
+extern int NUMDRV;
+
 #define SNAP_BMP 1
 #include <strings.h>
 #include <string.h>
@@ -41,6 +28,8 @@
 extern void gui_poll_events(void);
 extern int c64mouse_enable;
 extern int vice_statusbar;
+
+#include "global.h"
 
 #define SDL_Delay usleep
 

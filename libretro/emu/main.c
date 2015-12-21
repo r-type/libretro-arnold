@@ -42,6 +42,7 @@ extern void	Host_InitDriveLEDIndicator();
 extern void	Host_FreeDriveLEDIndicator();
 
 extern int arnold_model;
+extern char DISKA_NAME[512],DISKB_NAME[512],TAPE_NAME[512],CART_NAME[512];
 
 /* Forward declarations */
 void init_main();
@@ -323,43 +324,49 @@ printf("FIXME RETRO: %s\n", argv[0]);
 	//ConfigCPC6128();
 
 		if (tape) {
-			if (!GenericInterface_InsertTape(tape)) {
+
+			if (GenericInterface_InsertTape(tape)) {
 				printf(Messages[73], tape);
 			}
-
-			AutoType_SetString( "|TAPE\nRUN\"\n\n", TRUE, TRUE);
-
+			else {
+				sprintf(TAPE_NAME,"%s",tape);
+				AutoType_SetString( "|TAPE\nRUN\"\n\n", TRUE, TRUE);
+			}
 		}
 
 		if (drivea) {
-			if (!GenericInterface_InsertDiskImage(0, drivea)) {
-				printf(Messages[74],
-					drivea);
+
+			if (GenericInterface_InsertDiskImage(0, drivea)) {
+				printf(Messages[74], drivea);
 			}	
+			else {
 
-			char AutoType_String[256];
-			char *pBuffer = malloc(512*5);
-			int nAutoRunResult = AMSDOS_GenerateAutorunCommand(pBuffer,AutoType_String);
-			if(nAutoRunResult==0){
-				printf("auto(%s)\n",AutoType_String);
-				AutoType_SetString(AutoType_String, TRUE, TRUE);
+				char AutoType_String[256];
+				char *pBuffer = malloc(512*5);
+				int nAutoRunResult = AMSDOS_GenerateAutorunCommand(pBuffer,AutoType_String);
+
+				sprintf(DISKA_NAME,"%s",drivea);
+				if(nAutoRunResult==0){
+					printf("auto(%s)\n",AutoType_String);
+					AutoType_SetString(AutoType_String, TRUE, TRUE);
+				}
+				else printf("error auto(%d)\n",nAutoRunResult);
+				free(pBuffer);
 			}
-			else printf("error auto(%d)\n",nAutoRunResult);
-			free(pBuffer);
-
 		}
 
 		if (driveb) {
-			if (!GenericInterface_InsertDiskImage(1, driveb)) {
-				printf(Messages[74],
-					driveb);
+			if (GenericInterface_InsertDiskImage(1, driveb)) {
+				printf(Messages[74], driveb);
 			}
+			else sprintf(DISKB_NAME,"%s",driveb);
 		}
 
 		if (cart) {
-			if (!GenericInterface_InsertCartridge(cart)) {
+			if (GenericInterface_InsertCartridge(cart)) {
 				printf(Messages[75], cart);
 			}
+			else sprintf(CART_NAME,"%s",driveb);
 		}
 
 		if (frameskip) {

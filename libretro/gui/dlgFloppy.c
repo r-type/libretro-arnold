@@ -22,19 +22,18 @@ const char DlgFloppy_fileid[] = "Hatari dlgFloppy.c : " __DATE__ " " __TIME__;
 #define LOG_INFO stderr
 #define LOG_ERROR stderr
 
+extern char DISKA_NAME[512],DISKB_NAME[512],TAPE_NAME[512],CART_NAME[512];
+
 static const char * const pszDiskImageNameExts[] =
 {
-	".d64",
-	".d71",
-	".d80",
-	".d82",
-	".g64",
-	".g41",
-	".t64",
-	".x64",
-	".tap",
-	".prg",
-	".p00",
+	".dsk",
+	".cpr",
+	".cdt",
+	".tzx",
+	".csw",
+	".wav",
+	".sna",
+	".voc",
 	".crt",
 	".zip",
 	NULL
@@ -69,20 +68,21 @@ static SGOBJ floppydlg[] =
 {
 	{ SGBOX, 0, 0, 0,0, 64,20, NULL },
 	{ SGTEXT, 0, 0, 25,1, 12,1, "Floppy disks" },
-	{ SGTEXT, 0, 0, 2,3, 8,1, "DF8:" },
+	{ SGTEXT, 0, 0, 2,3, 8,1, "DRIVEA:" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 46,3, 7,1, "Eject" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 54,3, 8,1, "Browse" },
 	{ SGTEXT, 0, 0, 3,4, 58,1, NULL },
-	{ SGTEXT, 0, 0, 2,6, 8,1, "DF9:" },
+	{ SGTEXT, 0, 0, 2,6, 8,1, "DRIVEB:" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 46,6, 7,1, "Eject" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 54,6, 8,1, "Browse" }
 ,
 	{ SGTEXT, 0, 0, 3,7, 58,1, NULL },
-	{ SGTEXT, 0, 0, 2,9, 8,1, "DF10:" },
+	{ SGTEXT, 0, 0, 2,9, 8,1, "TAPE:" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 46,9, 7,1, "Eject" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 54,9, 8,1, "Browse" },
 	{ SGTEXT, 0, 0, 3,10, 58,1, NULL },
-	{ SGTEXT, 0, 0, 2,12, 8,1, "DF11:" },
+
+	{ SGTEXT, 0, 0, 2,12, 8,1, "CART:" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 46,12, 7,1, "Eject" },
 	{ SGBUTTON,  SG_EXIT/*0*/, 0, 54,12, 8,1, "Browse" },
 
@@ -208,15 +208,15 @@ static void DlgDisk_BrowseDisk(char *dlgname, int drive, int diskid)
 	selname = SDLGui_FileSelect(tmpname, &zip_path, false);
 	if (!selname)
 		return;
-
+	printf("in)d%d:(%s)\n",drive,selname);	
 	if (File_Exists(selname))
-	{
+	{printf("----------Exist)\n");	
 		realname = Floppy_SetDiskFileName(drive, selname, zip_path);
 		if (realname)
 			File_ShrinkName(dlgname, realname, floppydlg[diskid].w);
 	}
 	else
-	{
+	{printf("---------not found\n");	
 		Floppy_SetDiskFileNameNone(drive);
 		dlgname[0] = '\0';
 	}
@@ -303,33 +303,25 @@ void DlgFloppy_Main(void)
  const char *name;
 
  floppydlg[FLOPPYDLG_ATTACH2FLIPLIST].state &= ~SG_SELECTED;
-#if 0
- name = file_system_get_disk_name(8); /* Filename */
+
+ name = DISKA_NAME; /* Filename */
  if (!name)dlgname[0][0] = '\0';
  else File_ShrinkName(dlgname[0], name,floppydlg[FLOPPYDLG_DISKA].w);
-#endif
-dlgname[0][0] = '\0';
  floppydlg[FLOPPYDLG_DISKA].txt = dlgname[0];
-#if 0
- name = file_system_get_disk_name(9); /* Filename */
+
+ name = DISKB_NAME; /* Filename */
  if (!name)dlgname[1][0] = '\0';
  else File_ShrinkName(dlgname[1], name,floppydlg[FLOPPYDLG_DISKB].w);
-#endif
-dlgname[1][0] = '\0';
  floppydlg[FLOPPYDLG_DISKB].txt = dlgname[1];
-#if 0
- name = file_system_get_disk_name(10); /* Filename */
+
+ name = TAPE_NAME; /* Filename */
  if (!name)dlgname[2][0] = '\0';
  else File_ShrinkName(dlgname[2], name,floppydlg[FLOPPYDLG_DISK2].w);
-#endif
-dlgname[2][0] = '\0';
  floppydlg[FLOPPYDLG_DISK2].txt = dlgname[2];
-#if 0
- name = file_system_get_disk_name(11); /* Filename */
+
+ name = CART_NAME; /* Filename */
  if (!name)dlgname[3][0] = '\0';
  else File_ShrinkName(dlgname[3], name,floppydlg[FLOPPYDLG_DISK3].w);
-#endif
-dlgname[3][0] = '\0';
  floppydlg[FLOPPYDLG_DISK3].txt = dlgname[3];
 
 	/* Default image directory: */
@@ -347,7 +339,7 @@ dlgname[3][0] = '\0';
 		 case FLOPPYDLG_EJECTA:                         /* Eject disk in drive A: */
 			Floppy_SetDiskFileNameNone(0);
 			dlgname[0][0] = '\0';
-			//file_system_detach_disk(GET_DRIVE(8));
+			DiskImage_RemoveDisk(0);
 
 			break;
 		 case FLOPPYDLG_BROWSEA:                        /* Choose a new disk A: */
@@ -355,86 +347,90 @@ dlgname[3][0] = '\0';
 
 			if (strlen(szDiskFileName[0]) > 0){
 
-			int drivetype;
-#if 0
-			printf("load (%s)-",szDiskFileName[0]);
-			resources_get_int_sprintf("Drive%iType", &drivetype, GET_DRIVE(8));
-			printf("(Drive%iType)\n",drivetype);
-
-			cartridge_detach_image(-1);
-			tape_image_detach(1);
-//			file_system_detach_disk(GET_DRIVE(8));
-
-			if(File_DoesFileExtensionMatch(szDiskFileName[0],"CRT"))
-				cartridge_attach_image(CARTRIDGE_CRT, szDiskFileName[0]);
-			else {
-//FIXME
-/*
-				if(File_DoesFileExtensionMatch(szDiskFileName[0],"D81") && drivetype!=1581)
-						resources_set_int_sprintf("Drive%iType", 1581,  GET_DRIVE(8));
-				else if (drivetype!=1542 && !File_DoesFileExtensionMatch(szDiskFileName[0],"D81"))
-						resources_set_int_sprintf("Drive%iType", 1542,  GET_DRIVE(8));
-*/			
-
-				if (floppydlg[FLOPPYDLG_ATTACH2FLIPLIST].state & SG_SELECTED){
-					file_system_detach_disk(GET_DRIVE(8));
-					printf("Attach to flip list\n");
-					file_system_attach_disk(8, szDiskFileName[0]);
-					fliplist_add_image(8)	;
-				}
+				if (GenericInterface_InsertDiskImage(0, szDiskFileName[0])) {
+					printf("Error loading drivea:%s\n", szDiskFileName[0]);
+				}	
 				else {
-					printf("autostart\n");
-					autostart_autodetect(szDiskFileName[0], NULL, 0, AUTOSTART_MODE_RUN);
+
+					char AutoType_String[256];
+					char *pBuffer = malloc(512*5);
+					int nAutoRunResult = AMSDOS_GenerateAutorunCommand(pBuffer,AutoType_String);
+
+					if(nAutoRunResult==0){
+						printf("auto(%s)\n",AutoType_String);
+						AutoType_SetString(AutoType_String, TRUE, TRUE);
+					}
+					else printf("error auto(%d)\n",nAutoRunResult);
+					free(pBuffer);
+
+					sprintf(DISKA_NAME,"%s",szDiskFileName[0]);
 				}
 
-			}
-#endif
 			}
 
 			break;
 		 case FLOPPYDLG_EJECTB:                         /* Eject disk in drive B: */
 			Floppy_SetDiskFileNameNone(1);
 			dlgname[1][0] = '\0';
-			//file_system_detach_disk(GET_DRIVE(9));
+			DiskImage_RemoveDisk(1);
 
 			break;
 		case FLOPPYDLG_BROWSEB:                         /* Choose a new disk B: */
 			DlgDisk_BrowseDisk(dlgname[1], 1, FLOPPYDLG_DISKB);
 
 			if (strlen(szDiskFileName[1]) > 0){
+
+				if (GenericInterface_InsertDiskImage(1, szDiskFileName[1])) {
+					printf("Error loading driveb:%s\n", szDiskFileName[1]);
+				}	
+				else sprintf(DISKB_NAME,"%s",szDiskFileName[1]);
 				
-			//file_system_detach_disk(GET_DRIVE(9));
-     		//file_system_attach_disk(9, szDiskFileName[1]);
-	
 			}
 
-		 case FLOPPYDLG_EJECT2:                         /* Eject disk in drive A: */
+		 case FLOPPYDLG_EJECT2:                         /* Eject tape  */
 			Floppy_SetDiskFileNameNone(2);
 			dlgname[2][0] = '\0';
-			//file_system_detach_disk(GET_DRIVE(10));
+			Tape_Remove();
+ 			sprintf(TAPE_NAME,"\0");
+
 			break;
-		 case FLOPPYDLG_BROWSE2:                        /* Choose a new disk A: */
+		 case FLOPPYDLG_BROWSE2:                        /* Choose a new tape */
 			DlgDisk_BrowseDisk(dlgname[2], 0, FLOPPYDLG_DISK2);
 
 			if (strlen(szDiskFileName[2]) > 0){
-					//strcpy(prefs->DrivePath[2], szDiskFileName[2]);
+
+				if (GenericInterface_InsertTape(szDiskFileName[2])) {
+					printf("Error loading Tape:%s\n", szDiskFileName[2]);
+				}
+				else {
+					sprintf(TAPE_NAME,"%s",szDiskFileName[2]);
+					AutoType_SetString( "|TAPE\nRUN\"\n\n", TRUE, TRUE);
+				}
+
 			}
 
 			break;
-		 case FLOPPYDLG_EJECT3:                         /* Eject disk in drive B: */
+
+		 case FLOPPYDLG_EJECT3:                         /* Eject cart  */
 			Floppy_SetDiskFileNameNone(3);
 			dlgname[3][0] = '\0';
-			//file_system_detach_disk(GET_DRIVE(11));
+			GenericInterface_RemoveCartridge();
+ 			sprintf(CART_NAME,"\0");
 			break;
-		case FLOPPYDLG_BROWSE3:                         /* Choose a new disk B: */
+		case FLOPPYDLG_BROWSE3:                         /* Choose a new cart */
 			DlgDisk_BrowseDisk(dlgname[3], 1, FLOPPYDLG_DISKB);
 
 			if (strlen(szDiskFileName[3]) > 0){
 
+				if (GenericInterface_InsertCartridge(szDiskFileName[3])) {
+					printf("Error loading cart:%s\n",szDiskFileName[3]);
+				}	
+				else sprintf(CART_NAME,"%s",szDiskFileName[3]);
 //					strcpy(prefs->DrivePath[3], szDiskFileName[3]);
 			}
 
 			break;
+
 		 case FLOPPYDLG_BROWSEIMG:
 			DlgDisk_BrowseDir(dlgdiskdir,szDiskImageDirectory,floppydlg[FLOPPYDLG_IMGDIR].w);
 			break;
@@ -456,19 +452,5 @@ dlgname[3][0] = '\0';
 	while (but != FLOPPYDLG_EXIT && but != SDLGUI_QUIT
 	        && but != SDLGUI_ERROR && !bQuitProgram);
 
-/*
-	if (floppydlg[FLOPPYDLG_AUTOSTART].state & SG_SELECTED){
-
-			if(!ThePrefs.Emul1541Proc){
-					prefs->Emul1541Proc = !prefs->Emul1541Proc;
-			}
-	}
-	else {
-			if(ThePrefs.Emul1541Proc){
-					prefs->Emul1541Proc = !prefs->Emul1541Proc;
-			}	
-
-	}
-*/
 
 }

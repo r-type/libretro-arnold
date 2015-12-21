@@ -251,6 +251,7 @@ static void DlgFileSelect_ScrollDown(void)
 
 //RETRO
 extern int gmx,gmy;
+extern int mouse_wu,mouse_wd;
 
 /*-----------------------------------------------------------------------*/
 /**
@@ -337,9 +338,13 @@ static void DlgFileSelect_ManageScrollbar(void)
 /**
  * Handle SDL events.
  */
+
 static void DlgFileSelect_HandleSdlEvents(int/*SDL_Event*/ *pEvent)
 {
 	int oldypos = ypos;
+if(mouse_wu==1 || mouse_wd==1)printf("rrr %d %d \n",mouse_wu,mouse_wd);
+if(mouse_wu==1)DlgFileSelect_ScrollUp();
+if(mouse_wd==1)DlgFileSelect_ScrollDown();
 
 //RETRO TODO FIX
 #if 0
@@ -602,6 +607,10 @@ char* SDLGui_FileSelect(const char *path_and_name, char **zip_path, bool bAllowN
 			refreshentries = true;
 		}/* reloaddir */
 
+if(mouse_wu==1 || mouse_wd==1)printf("rrr %d %d \n",mouse_wu,mouse_wd);
+if(mouse_wu==1)DlgFileSelect_ScrollUp();
+if(mouse_wd==1)DlgFileSelect_ScrollDown();
+
 		/* Refresh scrollbar size */
  		if (entries <= SGFS_NUMENTRIES)
 			yScrollbar_size = (SGFS_NUMENTRIES-2) * sdlgui_fontheight;
@@ -636,6 +645,7 @@ char* SDLGui_FileSelect(const char *path_and_name, char **zip_path, bool bAllowN
 
 		/* Show dialog: */
 		retbut = SDLGui_DoDialog(fsdlg, &sdlEvent);
+				DlgFileSelect_HandleSdlEvents(&sdlEvent);
 
 		/* Has the user clicked on a file or folder? */
 		if (retbut>=SGFSDLG_ENTRYFIRST && retbut<=SGFSDLG_ENTRYLAST && retbut-SGFSDLG_ENTRYFIRST+ypos<entries)
@@ -755,6 +765,7 @@ char* SDLGui_FileSelect(const char *path_and_name, char **zip_path, bool bAllowN
 		}
 		else    /* Has the user clicked on another button? */
 		{
+
 			switch(retbut)
 			{
 			case SGFSDLG_UPDIR:                 /* Change path to parent directory */

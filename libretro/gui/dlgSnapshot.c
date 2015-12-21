@@ -48,23 +48,25 @@ void Dialog_SnapshotDlg(void)
 
 				if (snapfile)
 				{	
-#if 0
-					if(machine_read_snapshot(snapfile,0)){
+
+					if(!GenericInterface_LoadSnapshot(snapfile)){
 							printf("loading snapfile (%s)\n",snapfile);
 					}
 					else 	printf("error loading snapfile (%s)\n",snapfile);
 
 					free(snapfile);
-#endif
 				}
 
 				break;
 
 			case SNATSHOTDLG_SAVE:
-#if 0
+			
 				snapfile=malloc(512*sizeof(char));
 				
-				name = file_system_get_disk_name(8); /* Filename */
+				if(NUMDRV==1)
+					name = DISKA_NAME; /* Filename */
+				else 
+					name = DISKB_NAME; /* Filename */
 
  				if (name){
 
@@ -80,11 +82,12 @@ void Dialog_SnapshotDlg(void)
 				}
 				else sprintf(snapfile,"%s.sna\0","dump");
 
-				//machine_write_snapshot(snapfile, save_roms, save_disks, 0); 
+				GenericInterface_SnapshotSave(snapfile,3,128 );
+				//snapshot_save(snapfile); 
 				printf("saving snapfile (%s)\n",snapfile);
 
 				free(snapfile);
-#endif
+
 				break;
 
 		}
